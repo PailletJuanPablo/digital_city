@@ -4,10 +4,14 @@ const tokenService = require('../services/jsonwebtoken');
 const bcrypt = require('bcrypt');
 const helpers = require('./helpers');
 const Profile = require('../models').Profile;
+// const emitter = require('../services/events');
 
 // Global Scope
 const saltRounds = 10;
-
+/*
+emitter.on('searched', (data) => {
+  console.log('Searched by category', data)
+})*/
 const signUp = async (req, res) => {
   try {
     const userRegistered = new User(req.body);

@@ -1,5 +1,5 @@
 const express = require('express');
-
+const emitter = require('../services/events');
 const offerController = require('../controllers/offerController');
 const tokenMiddleware = require('../middlewares/checkToken');
 const OfferRouter = express.Router();
@@ -14,40 +14,38 @@ var storage = multer.diskStorage({
     cb(null, `./public/uploads/offers`);
   },
   filename: function(req, file, cb) {
-    cb(null, new Date().getSeconds() + '-' + file.originalname.trim() );
-    if(!req.imageUrls){
-        req.imageUrls = []
-    } 
+    cb(null, new Date().getSeconds() + '-' + file.originalname.trim());
+    if (!req.imageUrls) {
+      req.imageUrls = [];
+    }
   }
 });
 var upload = multer({ storage: storage });
 
+OfferRouter.post('/', tokenMiddleware.verifyAuth, upload.array('images'), offerController.createOffer);
 
-OfferRouter.post('/', tokenMiddleware.verifyAuth, upload.array('images') , offerController.createOffer);
-
-OfferRouter.delete('/offer/:id', tokenMiddleware.verifyAuth,  (req, res) => {
-    return crudBasicOperations.deleteIfIsOwner(req, res, OfferModel, 'by')
+OfferRouter.delete('/offer/:id', tokenMiddleware.verifyAuth, (req, res) => {
+  return crudBasicOperations.deleteIfIsOwner(req, res, OfferModel, 'by');
 });
-OfferRouter.get('/list', (req, res ) => {
-  crudBasicOperations.listAll(req, res, OfferModel)
+OfferRouter.get('/list', (req, res) => {
+  crudBasicOperations.listAll(req, res, OfferModel);
 });
-OfferRouter.get('/list/services', (req, res ) => {
-  crudBasicOperations.listByParam(req, res, OfferModel, 'type', 'Service')
+OfferRouter.get('/list/services', (req, res) => {
+  crudBasicOperations.listByParam(req, res, OfferModel, 'type', 'Service');
 });
-OfferRouter.get('/list/products', (req, res ) => {
-  crudBasicOperations.listByParam(req, res, OfferModel, 'type', 'Product')
+OfferRouter.get('/list/products', (req, res) => {
+  crudBasicOperations.listByParam(req, res, OfferModel, 'type', 'Product');
 });
 
-
-OfferRouter.post('/categories/', (req, res ) => {
-  crudBasicOperations.createNew(req, res, Category)
+OfferRouter.post('/categories/', (req, res) => {
+  crudBasicOperations.createNew(req, res, Category);
 });
-OfferRouter.get('/categories/', (req, res ) => {
-  crudBasicOperations.listAll(req, res, Category)
+OfferRouter.get('/categories/', (req, res) => {
+  crudBasicOperations.listAll(req, res, Category);
 });
-OfferRouter.get('/list/by_category/:category', offerController.getOffersByCategory);
-
-
+OfferRouter.get('/list/by_category/:category', (req, res) => {
+  offerController.getOffersByCategory(req, res);
+});
 
 // Lo exportamos para usar en app.js
 module.exports = OfferRouter;
